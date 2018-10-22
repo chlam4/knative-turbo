@@ -1,0 +1,31 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: knativeturbo-pdn
+  labels:
+    app: knativeturbo-pdn
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: knativeturbo-pdn
+    spec:
+      serviceAccount: turbo-user
+      containers:
+        - name: knativeturbo-pdn
+          # Replace the image with desired version
+          image: pallavidebnath/knativeturbo:v1
+          imagePullPolicy: Always
+          args:
+            - --turboconfig=/etc/knativeturbo/turbo.config
+            - --v=3
+          volumeMounts:
+          - name: knative-turbo-config
+            mountPath: /etc/knativeturbo
+            readOnly: true
+      volumes:
+      - name: knative-turbo-config
+        configMap:
+          name: knative-turbo-config-pdn
+      restartPolicy: Always
