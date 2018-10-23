@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"k8s.io/client-go/tools/clientcmd"
 	servingv1alpha1 "github.com/knative/serving/pkg/client/clientset/versioned/typed/serving/v1alpha1"
+	"github.com/knative/pkg/apis/istio/common/v1alpha1"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	apiv1 "k8s.io/api/core/v1"

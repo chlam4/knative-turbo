@@ -30,10 +30,12 @@ func (dtoBuilder *KnativeDTOBuilder) buildFunctionDto(funcSvc *KnativeFunction) 
 	if vappId == "" {
 		return nil, fmt.Errorf("Cannot create function vapp without ID %++v", vappId)
 	}
-	vappId = fmt.Sprintf("%s-%s/%s-%s", "vApp", funcSvc.Namespace, funcSvc.Revision, "service")
+	vappId = fmt.Sprintf("%s/%s-%s", funcSvc.Namespace, funcSvc.Revision, "service")
+	//vappId = fmt.Sprintf("%s/%s-%s", "vApp", funcSvc.Namespace, funcSvc.Revision, "service")
 
 	// display name.
-	funcName := fmt.Sprintf("%s-%s/%s", "vApp", funcSvc.Namespace, funcSvc.Revision)
+	funcName := fmt.Sprintf("%s/%s", funcSvc.Namespace, funcSvc.Revision)
+	//funcName := fmt.Sprintf("%s/%s", "vApp", funcSvc.Namespace, funcSvc.Revision)
 	fmt.Printf("**** vapp id : %s\n", funcName)
 
 	commodities := []*proto.CommodityDTO{}
@@ -46,8 +48,8 @@ func (dtoBuilder *KnativeDTOBuilder) buildFunctionDto(funcSvc *KnativeFunction) 
 
 	entityDTOBuilder := builder.NewEntityDTOBuilder(proto.EntityDTO_VIRTUAL_APPLICATION, funcName).
 		DisplayName(funcName).
-		WithProperty(getEntityProperty(StitchingAttr, vappId+","+funcSvc.HostName)).
-		//WithProperty(getEntityProperty(extPropAttr, vappId)).
+		WithProperty(getEntityProperty(StitchingAttr, vappId)).		// + "," + funcSvc.HostName)).
+			//WithProperty(getEntityProperty(extPropAttr, vappId)).
 		SellsCommodities(commodities).
 		ReplacedBy(getReplacementMetaData(proto.EntityDTO_VIRTUAL_APPLICATION))
 		//Provider(provider).BuysCommodities(boughtCommodities)
