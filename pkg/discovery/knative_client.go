@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"k8s.io/client-go/tools/clientcmd"
 	servingv1alpha1 "github.com/knative/serving/pkg/client/clientset/versioned/typed/serving/v1alpha1"
-	"github.com/knative/pkg/apis/istio/common/v1alpha1"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	apiv1 "k8s.io/api/core/v1"
@@ -90,21 +89,6 @@ func DiscoverKnative(kubeClientConfig *restclient.Config) ([]*proto.EntityDTO, e
 			fmt.Printf("builder error : %v\n", err)
 		}
 		fmt.Printf("Function DTO %++v\n", dto)
-		discoveryResult = append(discoveryResult, dto)
-
-		//dtoBuilder, err = knativeDtoBuilder.buildContainerDto(functionSvc)
-		//if err != nil {
-		//	glog.Errorf("%s", err)
-		//	fmt.Printf("Error while building entity : %v\n", err)
-		//}
-		//if dtoBuilder == nil {
-		//	fmt.Printf("%v\n", err)
-		//}
-		//dto, err = dtoBuilder.Create()
-		//if err != nil {
-		//	fmt.Printf("builder error : %v\n", err)
-		//}
-		//fmt.Printf("Container DTO %++v\n", dto)
 		discoveryResult = append(discoveryResult, dto)
 	}
 	fmt.Printf("DONE Building DTOs\n")
