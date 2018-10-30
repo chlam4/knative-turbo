@@ -37,8 +37,8 @@ func (f *SupplyChainFactory) buildVirtualApplicationSupplyBuilder() (*proto.Temp
 	vAppSupplyChainNodeBuilder := supplychain.NewSupplyChainNodeBuilder(proto.EntityDTO_VIRTUAL_APPLICATION)
 	vAppSupplyChainNodeBuilder = vAppSupplyChainNodeBuilder.
 		Sells(applicationTemplateCommWithKey).
-		Sells(transactionTemplateCommWithKey).
-		Sells(respTimeTemplateCommWithKey)
+		Sells(respTimeTemplateCommWithKey).
+		Sells(transactionTemplateCommWithKey)
 
 	vAppSupplyChainNodeBuilder.SetPriority(-100)
 	//vAppSupplyChainNodeBuilder.SetTemplateType(proto.TemplateDTO_BASE)

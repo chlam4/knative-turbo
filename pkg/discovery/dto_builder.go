@@ -8,11 +8,17 @@ import (
 )
 
 const (
-	StitchingAttr            string = "VappIds"	//"vAppUuid"
+	StitchingAttr        string = "VappIds"       //"vAppUuid"
+	GatewayStitchingAttr string = "GatewayVappId" //"vAppUuid"
+	KubernetesPropAttr   string = "KubernetesVappId"
+
+	LocalNameAttr    string = "LocalName"
+	AltNameAttr      string = "altName"
+	ExternalNameAttr string = "externalnames"
+
 	DefaultPropertyNamespace string = "DEFAULT"
-	extPropAttr string = "DisplayName"
-	PropertyUsed        = "used"
-	PropertyCapacity    = "capacity"
+	PropertyUsed                    = "used"
+	PropertyCapacity                = "capacity"
 )
 
 type KnativeDTOBuilder struct {
@@ -24,62 +30,64 @@ func (dtoBuilder *KnativeDTOBuilder) buildFunctionDto(funcSvc *KnativeFunction) 
 	}
 
 	// id.
-	var vappId string
-	vappId = funcSvc.HostName
+	var vappId, localId, altId string
+	//localId = funcSvc.HostName
 
-	if vappId == "" {
-		return nil, fmt.Errorf("Cannot create function vapp without ID %++v", vappId)
-	}
-	vappId = fmt.Sprintf("%s/%s-%s", funcSvc.Namespace, funcSvc.Revision, "service")
-	//vappId = fmt.Sprintf("%s/%s-%s", "vApp", funcSvc.Namespace, funcSvc.Revision, "service")
+	//if vappId == "" {
+	//	return nil, fmt.Errorf("Cannot create function vapp without ID %++v", localId)
+	//}
 
-	// display name.
-	funcName := fmt.Sprintf("%s/%s", funcSvc.Namespace, funcSvc.Revision)
+	// uuid and display name.
+	vappId = fmt.Sprintf("%s/%s/%s", "knative", funcSvc.FunctionName, funcSvc.HostName)
 	//funcName := fmt.Sprintf("%s/%s", "vApp", funcSvc.Namespace, funcSvc.Revision)
-	fmt.Printf("**** vapp id : %s\n", funcName)
+	fmt.Printf("**** vapp id : %s\n", vappId)
+
+	localId = fmt.Sprintf("%s/%s-%s", funcSvc.Namespace, funcSvc.Revision, "service")
+	altId =  funcSvc.HostName
+	fmt.Printf("**** local name: %s\n", localId)
+	fmt.Printf("**** alt name: %s\n", altId)
 
 	commodities := []*proto.CommodityDTO{}
-	commodity, _ := builder.NewCommodityDTOBuilder(proto.CommodityDTO_TRANSACTION).Key(vappId).Create()
+	commodity, _ := builder.NewCommodityDTOBuilder(proto.CommodityDTO_TRANSACTION).Key(localId).Create()
 	commodities = append(commodities, commodity)
-	commodity, _ = builder.NewCommodityDTOBuilder(proto.CommodityDTO_RESPONSE_TIME).Key(vappId).Create()
+	commodity, _ = builder.NewCommodityDTOBuilder(proto.CommodityDTO_RESPONSE_TIME).Key(localId).Create()
 	commodities = append(commodities, commodity)
-	commodity, _ = builder.NewCommodityDTOBuilder(proto.CommodityDTO_APPLICATION).Key(funcSvc.FunctionName).Create()
+	commodity, _ = builder.NewCommodityDTOBuilder(proto.CommodityDTO_APPLICATION).Key(localId).Create()
 	commodities = append(commodities, commodity)
 
-	entityDTOBuilder := builder.NewEntityDTOBuilder(proto.EntityDTO_VIRTUAL_APPLICATION, funcName).
-		DisplayName(funcName).
-		WithProperty(getEntityProperty(StitchingAttr, vappId)).		// + "," + funcSvc.HostName)).
-			//WithProperty(getEntityProperty(extPropAttr, vappId)).
+	entityDTOBuilder := builder.NewEntityDTOBuilder(proto.EntityDTO_VIRTUAL_APPLICATION, vappId).
+		DisplayName(vappId).
+		WithProperty(getEntityProperty(LocalNameAttr, localId)).
+		WithProperty(getEntityProperty(AltNameAttr, altId)).
+		//WithProperty(getEntityProperty(KubernetesPropAttr, vappId)).
+		//WithProperty(getEntityProperty(GatewayStitchingAttr, funcSvc.HostName)).
 		SellsCommodities(commodities).
 		ReplacedBy(getReplacementMetaData(proto.EntityDTO_VIRTUAL_APPLICATION))
-		//Provider(provider).BuysCommodities(boughtCommodities)
 
 	fmt.Printf("Created function dto builder\n")
 	return entityDTOBuilder, nil
 }
 
-
 func getReplacementMetaData(entityType proto.EntityDTO_EntityType,
 ) *proto.EntityDTO_ReplacementEntityMetaData {
-	attr := StitchingAttr
+	extAttr := ExternalNameAttr	//StitchingAttr
+	intAttr := LocalNameAttr	//KubernetesPropAttr
 	useTopoExt := true
 
 	b := builder.NewReplacementEntityMetaDataBuilder().
-		Matching(attr).
-		//MatchingExternalProperty(extPropAttr)
+		Matching(intAttr).
 		MatchingExternal(&proto.ServerEntityPropDef{
-			Entity:    &entityType,
-			Attribute: &attr,
+			Entity:     &entityType,
+			Attribute:  &extAttr,
 			UseTopoExt: &useTopoExt,
-		}).
-		PatchBuyingWithProperty(proto.CommodityDTO_TRANSACTION, []string{PropertyUsed}).
-		PatchBuyingWithProperty(proto.CommodityDTO_RESPONSE_TIME, []string{PropertyUsed}).
-		PatchSellingWithProperty(proto.CommodityDTO_TRANSACTION, []string{PropertyUsed, PropertyCapacity}).
-		PatchSellingWithProperty(proto.CommodityDTO_RESPONSE_TIME, []string{PropertyUsed, PropertyCapacity})
+		})
+		//PatchBuyingWithProperty(proto.CommodityDTO_TRANSACTION, []string{PropertyUsed}).
+		//PatchBuyingWithProperty(proto.CommodityDTO_RESPONSE_TIME, []string{PropertyUsed}).
+		//PatchSellingWithProperty(proto.CommodityDTO_TRANSACTION, []string{PropertyUsed, PropertyCapacity}).
+		//PatchSellingWithProperty(proto.CommodityDTO_RESPONSE_TIME, []string{PropertyUsed, PropertyCapacity})
 
 	return b.Build()
 }
-
 
 func getEntityProperty(attr, value string) *proto.EntityDTO_EntityProperty {
 	ns := DefaultPropertyNamespace
@@ -97,7 +105,7 @@ func (dtoBuilder *KnativeDTOBuilder) buildContainerDto(funcSvc *KnativeFunction)
 	}
 
 	// id.
-	containerUuid := strings.Join( []string{"cg",funcSvc.FunctionName}, "-")
+	containerUuid := strings.Join([]string{"cg", funcSvc.FunctionName}, "-")
 	fmt.Printf("**** vapp id : %s\n", containerUuid)
 
 	// display name.

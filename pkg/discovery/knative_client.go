@@ -5,12 +5,14 @@ import (
 	"fmt"
 	"k8s.io/client-go/tools/clientcmd"
 	servingv1alpha1 "github.com/knative/serving/pkg/client/clientset/versioned/typed/serving/v1alpha1"
-
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	apiv1 "k8s.io/api/core/v1"
-
 	"github.com/golang/glog"
 	"os"
+
+	//istiov1alpha3 "github.com/knative/pkg/client/clientset/versioned/typed/istio/v1alpha3"
+
+metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	apiv1 "k8s.io/api/core/v1"
+
 	restclient "k8s.io/client-go/rest"
 	"k8s.io/client-go/kubernetes"
 )
@@ -28,24 +30,16 @@ func DiscoverKnative(kubeClientConfig *restclient.Config) ([]*proto.EntityDTO, e
 
 	fmt.Printf("[GO] hello, World\n")
 
-	//kubeConfig := createKubeConfigOrDie(kubeconfig)
-	//glog.V(3).Infof("kubeConfig: %+v", kubeConfig)
-	//
-	//kubeClient := createKubeClientOrDie(kubeConfig)
-
-	//GetNamespaces(kubeClient)
-
-	//var restConfig *rest.Config
-	//restConfig, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
 	namespace := apiv1.NamespaceAll
+
 	// knative serving client
 	servingv1aplpha1Client, err := servingv1alpha1.NewForConfig(kubeClientConfig)
 	if err != nil {
 		fmt.Errorf("Error creating knative serving client: %++v", err)
 		return nil, err
 	}
-
 	fmt.Printf("Got knative serving client\n")
+
 
 	// Get knative services
 	serviceList, err := servingv1aplpha1Client.Services(namespace).List(metav1.ListOptions{})
