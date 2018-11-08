@@ -2,18 +2,21 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: knative-turbo-config-pdn
+  name: kong-turbo-config-pdn
 data:
   turbo.config: |-
     {
            "communicationConfig": {
                  "serverMeta": {
                     "version" : "6.3.0-SNAPSHOT",
-                    "turboServer": "https://35.164.55.231"
+                    "turboServer": "<TURBO_SERVER>"
                 },
                 "restAPIConfig": {
-                    "opsManagerUserName": "administrator",
-                    "opsManagerPassword": "i-0d6d64563204ca85d"
+                    "opsManagerUserName": "<TURBO USER>",
+                    "opsManagerPassword": "<TURBO PASSWORD>"
                 }
+           },
+           "kongturboTargetConfig": {
+                "kongAdmin" : "<KONG ADMIN HOST>"
            }
      }
