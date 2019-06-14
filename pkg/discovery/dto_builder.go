@@ -42,7 +42,7 @@ func (dtoBuilder *KnativeDTOBuilder) buildFunctionDto(funcSvc *KnativeFunction) 
 	//funcName := fmt.Sprintf("%s/%s", "vApp", funcSvc.Namespace, funcSvc.Revision)
 	fmt.Printf("**** vapp id : %s\n", vappId)
 
-	localId = fmt.Sprintf("%s/%s-%s", funcSvc.Namespace, funcSvc.Revision, "service")
+	localId = fmt.Sprintf("%s/%s", funcSvc.Namespace, funcSvc.Revision)
 	altId =  funcSvc.HostName
 	fmt.Printf("**** local name: %s\n", localId)
 	fmt.Printf("**** alt name: %s\n", altId)
